@@ -1,0 +1,62 @@
+- hosts: localhost
+  gather_facts: false
+  tasks:
+    - include_vars: "vars.yml"
+
+    - name: "Listener Rule"
+      alb_listener_rule:
+        listener_arn: "{{ listener_arn }}"
+        conditions:
+          - Field: "path-pattern"
+            Values: ["/test"]
+        state: "absent"
+
+    - name: "Listener Rule Created"
+      alb_listener_rule:
+        listener_arn: "{{ listener_arn }}"
+        conditions:
+          - Field: "path-pattern"
+            Values: ["/test"]
+        actions:
+          - Type: "forward"
+            TargetGroupArn: "{{ target_group_1 }}"
+
+    - name: "Listener Rule No Modified"
+      alb_listener_rule:
+        listener_arn: "{{ listener_arn }}"
+        conditions:
+          - Field: "path-pattern"
+            Values: ["/test"]
+        actions:
+          - Type: "forward"
+            TargetGroupArn: "{{ target_group_1 }}"
+
+    - name: "Listener Rule Unable to Modify"
+      alb_listener_rule:
+        listener_arn: "{{ listener_arn }}"
+        conditions:
+          - Field: "path-pattern"
+            Values: ["/test"]
+        priority: 400
+        actions:
+          - Type: "forward"
+            TargetGroupArn: "{{ target_group_1 }}"
+      ignore_errors: true
+
+    - name: "Listener Rule Modified"
+      alb_listener_rule:
+        listener_arn: "{{ listener_arn }}"
+        conditions:
+          - Field: "path-pattern"
+            Values: ["/test"]
+        actions:
+          - Type: "forward"
+            TargetGroupArn: "{{ target_group_2 }}"
+
+    - name: "Listener Rule Deleted"
+      alb_listener_rule:
+        listener_arn: "{{ listener_arn }}"
+        conditions:
+          - Field: "path-pattern"
+            Values: ["/test"]
+        state: "absent"
